@@ -1,0 +1,9 @@
+id: ticket_002
+input:
+  subject: "Can't log in"
+  body: "My login isn't working, I forgot my password too."
+expected_output:
+  category: account
+scoring:
+  category: exact
+baseline_score: 1.0

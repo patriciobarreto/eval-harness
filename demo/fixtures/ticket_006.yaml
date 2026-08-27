@@ -1,0 +1,9 @@
+id: ticket_006
+input:
+  subject: "Just wanted to say thanks"
+  body: "Just wanted to say I love the product, keep it up!"
+expected_output:
+  category: feedback
+scoring:
+  category: exact
+baseline_score: 1.0

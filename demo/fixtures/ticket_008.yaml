@@ -1,0 +1,9 @@
+id: ticket_008
+input:
+  subject: "asdkjaslkdj"
+  body: "qwooeiruqwoiuer"
+expected_output:
+  category: uncategorized
+scoring:
+  category: exact
+baseline_score: 1.0

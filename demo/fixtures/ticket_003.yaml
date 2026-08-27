@@ -1,0 +1,9 @@
+id: ticket_003
+input:
+  subject: "Getting a 500 error on checkout"
+  body: "The page just shows a broken error message and times out."
+expected_output:
+  category: technical
+scoring:
+  category: exact
+baseline_score: 1.0

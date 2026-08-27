@@ -1,0 +1,9 @@
+id: ticket_004
+input:
+  subject: "Found a glitch in the export button"
+  body: "It's a bug, easy to reproduce: click export twice quickly."
+expected_output:
+  category: bug_report
+scoring:
+  category: exact
+baseline_score: 1.0

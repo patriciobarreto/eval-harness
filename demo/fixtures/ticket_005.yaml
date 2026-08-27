@@ -1,0 +1,9 @@
+id: ticket_005
+input:
+  subject: "Feature idea"
+  body: "Please add dark mode, it would be nice to have at night."
+expected_output:
+  category: feature_request
+scoring:
+  category: exact
+baseline_score: 1.0

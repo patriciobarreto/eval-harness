@@ -1,0 +1,13 @@
+# Deliberately ambiguous: could reasonably be filed as billing (payment
+# method) or account (locked out). baseline_score reflects that a
+# reasonable-alternative score of 0.5 here is expected and acceptable,
+# not a regression.
+id: ticket_007
+input:
+  subject: "Can't update my payment method"
+  body: "I'm locked out of my account and need to change my card on file."
+expected_output:
+  category: account
+scoring:
+  category: judge
+baseline_score: 0.5

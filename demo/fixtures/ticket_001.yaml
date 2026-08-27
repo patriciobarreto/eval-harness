@@ -1,0 +1,9 @@
+id: ticket_001
+input:
+  subject: "Charged twice for my subscription"
+  body: "I see two charges on my card this month for the same plan."
+expected_output:
+  category: billing
+scoring:
+  category: exact
+baseline_score: 1.0
