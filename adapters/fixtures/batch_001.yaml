@@ -1,0 +1,44 @@
+# TEMPLATE FIXTURE -- not real production data.
+#
+# A real fixture's `transactions[].systemInstructions` and `.userPrompt`
+# should be the verbatim `systemInstructions` / `promptSent` values pulled
+# from a past, human-verified CategorizationAgentExecution row -- not
+# hand-written like the placeholders below. See adapters/README.md for how
+# to build one from real data.
+id: batch_001
+input:
+  categories:
+    - id: 42
+      name: "Office Supplies"
+      classification: "Expense"
+    - id: 43
+      name: "Meals & Entertainment"
+      classification: "Expense"
+  transactions:
+    - qbTransactionId: "txn_1"
+      bankDetail: "STAPLES STORE #4821"
+      amountInCents: -4599
+      direction: debit
+      date: "2026-01-15"
+      qbTransactionType: "Expense"
+      systemInstructions: "PLACEHOLDER -- paste the real agentInstructions snapshot here."
+      userPrompt: "PLACEHOLDER -- paste the real promptSent snapshot here."
+      llmProvider: anthropic
+      llmModel: claude-sonnet-4-5-20250929
+    - qbTransactionId: "txn_2"
+      bankDetail: "CHIPOTLE MEXICAN GRILL"
+      amountInCents: -1250
+      direction: debit
+      date: "2026-01-16"
+      qbTransactionType: "Expense"
+      systemInstructions: "PLACEHOLDER -- paste the real agentInstructions snapshot here."
+      userPrompt: "PLACEHOLDER -- paste the real promptSent snapshot here."
+      llmProvider: anthropic
+      llmModel: claude-sonnet-4-5-20250929
+expected_output:
+  txn_1: "Office Supplies"
+  txn_2: "Meals & Entertainment"
+scoring:
+  txn_1: exact
+  txn_2: exact
+baseline_score: 1.0

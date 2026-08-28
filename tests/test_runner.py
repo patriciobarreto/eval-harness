@@ -11,9 +11,11 @@ returns 1.0 would make every future regression invisible).
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "demo"))
 
-from eval_harness import FakeJudge, load_fixtures, run, score_fixture
+from eval_harness import AnthropicJudge, Fixture, FakeJudge, load_fixtures, run, score_fixture
 from ticket_classifier import TicketClassifier
 
 FIXTURES_DIR = Path(__file__).parent.parent / "demo" / "fixtures"
@@ -60,3 +62,66 @@ def test_no_regressions():
     report = run(agent, fixtures, judge)
 
     assert report.passed, f"\n{report.summary()}"
+
+
+def test_scoring_a_field_missing_from_expected_output_is_rejected():
+    """
+    A `scoring` key with no matching key in `expected_output` is almost
+    always a typo. Without this check both sides default to None and the
+    field scores 1.0 forever, no matter what the agent returns.
+    """
+    with pytest.raises(ValueError, match="not present in expected_output"):
+        Fixture.from_dict(
+            {
+                "id": "ticket_typo",
+                "input": {"subject": "x", "body": "y"},
+                "expected_output": {"category": "billing"},
+                "scoring": {"categroy": "exact"},  # typo: doesn't match expected_output
+            }
+        )
+
+
+class _ExplodingAgent:
+    def run(self, input):
+        raise RuntimeError("boom")
+
+
+def test_agent_exception_fails_that_fixture_without_crashing_the_run():
+    fixtures = load_fixtures(FIXTURES_DIR)
+    report = run(_ExplodingAgent(), fixtures, FakeJudge())
+
+    assert not report.passed
+    assert len(report.results) == len(fixtures)
+    assert all(r.score == 0.0 and r.error is not None for r in report.results)
+
+
+class _FakeAnthropicResponse:
+    def __init__(self, text):
+        self.content = [type("Block", (), {"text": text})()]
+
+
+class _FakeAnthropicClient:
+    def __init__(self, verdict):
+        self._verdict = verdict
+        self.messages = self
+
+    def create(self, **kwargs):
+        return _FakeAnthropicResponse(self._verdict)
+
+
+@pytest.mark.parametrize(
+    "verdict,expected_score",
+    [("MATCH", 1.0), ("PARTIAL", 0.5), ("MISS", 0.0)],
+)
+def test_anthropic_judge_maps_verdicts_to_scores(verdict, expected_score):
+    """
+    AnthropicJudge must honor the same 1.0/0.5/0.0 contract as FakeJudge
+    (per the Judge protocol) -- a MATCH/MISS-only judge silently drops
+    partial credit for fixtures like ticket_007 that rely on it.
+    """
+    judge = AnthropicJudge()
+    judge._client = _FakeAnthropicClient(verdict)
+
+    score = judge.score("category", {"subject": "x"}, "account", "billing")
+
+    assert score == expected_score

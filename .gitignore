@@ -5,3 +5,8 @@ __pycache__/
 .venv/
 venv/
 eval_output.txt
+adapters/fixtures/drafts/
+adapters/test_clients/
+.env
+.env.*
+!.env.example

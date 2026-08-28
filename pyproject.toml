@@ -10,6 +10,7 @@ dependencies = [
 
 [project.optional-dependencies]
 anthropic = ["anthropic>=0.30.0"]
+adapters = ["requests>=2.31.0"]
 
 [build-system]
 requires = ["setuptools>=61.0"]

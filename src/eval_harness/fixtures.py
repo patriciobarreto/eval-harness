@@ -40,11 +40,24 @@ class Fixture:
         missing = required - data.keys()
         if missing:
             raise ValueError(f"fixture missing required keys: {missing}")
+
+        expected_output = data["expected_output"]
+        scoring = data["scoring"]
+        unscored_typos = set(scoring) - set(expected_output)
+        if unscored_typos:
+            # A scored field with no matching key in expected_output almost always
+            # means a typo: both sides fall back to None and the field silently
+            # scores 1.0 forever, no matter what the agent returns.
+            raise ValueError(
+                f"fixture {data['id']!r}: scoring references field(s) {unscored_typos} "
+                f"not present in expected_output"
+            )
+
         return cls(
             id=data["id"],
             input=data["input"],
-            expected_output=data["expected_output"],
-            scoring=data["scoring"],
+            expected_output=expected_output,
+            scoring=scoring,
             baseline_score=float(data.get("baseline_score", 1.0)),
         )
 

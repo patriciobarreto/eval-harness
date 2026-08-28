@@ -64,8 +64,11 @@ class AnthropicJudge:
 
     RUBRIC = (
         "You are scoring one field of an agent's output against a known-good "
-        "expected value. Respond with exactly one token: MATCH if the actual "
-        "value is correct or an equally valid alternative, MISS if it is wrong.\n\n"
+        "expected value. Respond with exactly one token:\n"
+        "MATCH if the actual value is correct or an equally valid alternative.\n"
+        "PARTIAL if the actual value is a defensible, reasonable alternative but "
+        "not clearly equivalent to the expected value.\n"
+        "MISS if the actual value is wrong.\n\n"
         "Field: {field}\n"
         "Input the agent saw: {input}\n"
         "Expected value: {expected}\n"
@@ -91,7 +94,12 @@ class AnthropicJudge:
         response = client.messages.create(
             model=self.model,
             max_tokens=5,
+            temperature=0,
             messages=[{"role": "user", "content": prompt}],
         )
         verdict = response.content[0].text.strip().upper()
-        return 1.0 if verdict.startswith("MATCH") else 0.0
+        if verdict.startswith("MATCH"):
+            return 1.0
+        if verdict.startswith("PARTIAL"):
+            return 0.5
+        return 0.0

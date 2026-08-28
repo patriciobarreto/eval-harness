@@ -34,10 +34,38 @@ class ScoreResult:
     field_results: list[FieldResult]
     score: float
     baseline_score: float
+    error: str | None = None  # set when agent.run() raised instead of producing output
 
     @property
     def regressed(self) -> bool:
         return self.score < self.baseline_score
+
+
+def score_agent_error(fixture: Fixture, exc: Exception) -> ScoreResult:
+    """
+    Build a failing ScoreResult for a fixture whose agent.run() raised.
+
+    Scores every field 0.0 without invoking the judge, since there's no
+    actual output to judge. Keeps one bad fixture from crashing the whole
+    run while still surfacing it as the regression it is.
+    """
+    field_results = [
+        FieldResult(
+            field=field,
+            method=method,
+            expected=fixture.expected_output.get(field),
+            actual=None,
+            score=0.0,
+        )
+        for field, method in fixture.scoring.items()
+    ]
+    return ScoreResult(
+        fixture_id=fixture.id,
+        field_results=field_results,
+        score=0.0,
+        baseline_score=fixture.baseline_score,
+        error=f"{type(exc).__name__}: {exc}",
+    )
 
 
 def score_fixture(fixture: Fixture, actual_output: dict[str, Any], judge: Judge) -> ScoreResult:
